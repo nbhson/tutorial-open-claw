@@ -6,7 +6,23 @@
 >
 > - Repo: https://github.com/openclaw/openclaw
 > - Trang chủ: https://openclaw.ai
-> - Bản cài lúc ghi chú này: **OpenClaw 2026.10.6** · Node **v26.12.1** · npm **11.20.0** · macOS 27
+> - Bản cài lúc ghi chú này: **OpenClaw 2026.10.7** · Node **v26.12.1** · npm **11.20.0** · macOS 27
+
+## Mục lục
+
+1. [Yêu cầu hệ thống](#1-yêu-cầu-hệ-thống)
+2. [Cài Node 26 bằng nvm](#2-cài-node-26-bằng-nvm)
+3. [Cài OpenClaw bằng npm](#3-cài-openclaw-bằng-npm)
+4. [Onboarding lần đầu](#4-onboarding-lần-đầu)
+5. [Lệnh CLI hữu ích](#5-lệnh-cli-hữu-ích)
+   - [5.11a. Profile chrome (khuyến nghị)](#511a-profile-chrome-khuyến-nghị)
+   - [5.11b. Profile user (ABANDONED)](#511b-profile-user-️-abandoned--chỉ-để-tham-khảo)
+6. [Cách khác: app macOS native](#6-cách-khác-app-macos-native)
+7. [Chạy từ source (cho dev)](#7-chạy-từ-source-cho-dev)
+8. [Xử lý lỗi thường gặp](#8-xử-lý-lỗi-thường-gặp) → chi tiết ở [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
+9. [Dùng model local qua llama.cpp](#9-dùng-model-local-qua-llamacpp) · [đường Ollama](2-ollama-path.md)
+10. [Sau khi tắt máy — mở lại hằng ngày](#10-sau-khi-tắt-máy--mở-lại-hằng-ngày)
+11. [Tham khảo](#11-tham-khảo)
 
 ---
 
@@ -51,7 +67,7 @@ Giải thích:
 
 ```bash
 openclaw --version
-# OpenClaw 2026.10.6 (fe06181)
+# OpenClaw 2026.10.7 (fe06181)
 ```
 
 ## 4. Onboarding lần đầu
@@ -194,7 +210,9 @@ openclaw hooks list           # hooks (tác động theo sự kiện)
 openclaw webhooks gmail setup # nhận thư Gmail trigger agent
 ```
 
-### 5.11. Nodes & browser (điều khiển máy khác/thiết bị)
+### 5.11a. Profile chrome (khuyến nghị)
+
+**Nodes & browser** (điều khiển máy khác/thiết bị):
 
 ```bash
 openclaw nodes list           # các node (điện thoại, máy khác) đã ghép đôi
@@ -217,14 +235,21 @@ openclaw browser --browser-profile chrome tabs   # thấy tab thật = OK
 ```
 
 Lưu ý sống còn (đã đắt giá học):
-- Đường CDP/file `DevToolsActivePort` (profile `user`) **bị macOS chặn đọc file
-  ở mọi process** (kể cả Terminal) → ABANDONED, dùng extension thay. Extension
-  đi qua `chrome.debugger` — không cần debugging port.
+- Extension đi qua `chrome.debugger` — không cần debugging port, không bị
+  macOS chặn (khác hẳn profile user bên dưới → đã ABANDONED).
 - Sau mỗi lần **restart gateway**, extension mất nối relay → bấm icon OpenClaw
   trên toolbar → "Use local OpenClaw" → chờ "Connected" rồi mới chat browser được.
 - Tab `chrome://...` và trang Web Store **không script được** — nếu agent kẹt
   enumerate tabs, đóng các tab đặc biệt đó.
 - Access mode trong popup để "All tabs" cho agent thấy mọi tab.
+
+---
+
+### 5.11b. Profile user (⚠️ ABANDONED — chỉ để tham khảo)
+
+> ❌ Con đường CDP (CDP/file `DevToolsActivePort` của profile `user`) **bị macOS
+> chặn đọc file ở mọi process** (kể cả Terminal) → đã bỏ, dùng extension ở
+> 5.11a thay. Nội dung dưới đây chỉ giữ lại để tham khảo.
 
 ```bash
 # 1. Chrome đang dùng → chrome://inspect/#remote-debugging → bật debugging
@@ -280,63 +305,25 @@ cần Xcode 26.2+ / Swift 6.2; không có cert Apple Developer thì tự ký ad-
 
 ## 8. Xử lý lỗi thường gặp
 
-**Gateway kẹt ở "Starting..."** — có thể zombie process giữ port 18789:
-
-```bash
-openclaw gateway stop
-lsof -nP -iTCP:18789 -sTCP:LISTEN   # tìm process giữ port
-```
-
-**Lỗi preinstall khi `npm install -g`:**
-`this OpenClaw release requires Node >=24.22.1 <25 || >=26.12.1` → Node đang dùng
-quá cũ, `nvm use 26` rồi cài lại.
-
-**Cảnh báo `install-scripts` của npm 11/12** → cài lại với `--allow-scripts=...`
-như mục 3.
-
-**Model không hiện trên thanh chat (dashboard)** → có allowlist khoá model.
-Kiểm tra: `openclaw models status` (xem dòng `Allowed models`) và
-`grep -n "modelPolicy\|models" ~/.openclaw/openclaw.json`. Xoá hạn chế:
-
-```bash
-openclaw models status                                 # xem dòng Allowed models + auth readiness
-openclaw models auth list                              # key đã lưu cho provider nhánh nào
-openclaw models list --provider opencode-go            # model nhánh Go discover được (Auth=yes)
-openclaw config unset agents.entries.main.modelPolicy       # allowlist theo-agent
-openclaw config unset agents.defaults.models                # allowlist mặc định
-openclaw models set opencode-go/<model-muon-mac-dinh>        # chọn model mặc định
-openclaw gateway restart
-# rồi Cmd+Shift+R để dashboard tải lại danh sách model
-```
-
-Lưu ý: catalog OpenCode có 2 nhánh prefix — `opencode/...` (Zen) và
-`opencode-go/...` (Go, cần subscription Go riêng). Key chỉ lưu cho nhánh nào
-thì model nhánh đó mới auth được; kiểm tra bằng `openclaw models list
---provider <prefix>` và `openclaw models status`.
-
-📍 Lỗi này đã gặp thật ngày 2026-10-23: allowlist nằm ở
-`agents.entries.main.modelPolicy.allow` (chỉ chứa 2 model không có auth).
-
-**Chat lỗi "Couldn't sign in to the AI service" / "Provider opencode-go has
-auth issue"** → mở log xem lỗi thật:
-`grep -i "rawErrorPreview" /tmp/openclaw/openclaw-<ngày>.log | tail -3`.
-Đã gặp ngày 2026-10-23: `403 ... An active OpenCode Go subscription is
-required to use Go models` — API key hợp lệ nhưng **tài khoản chưa có
-subscription OpenCode Go**. Fix đã áp dụng: nhập cùng 1 key cho nhánh Zen
-(`openclaw models auth paste-api-key --provider opencode --profile-id
-opencode:default`) và đổi default sang model free:
-`openclaw config set agents.defaults.model.primary "opencode/glm-5.3-flash-free"`
-rồi `openclaw gateway restart`. Muốn lại dùng Go: subscribe tại opencode.ai
-→ bảo mình restart gateway là config cũ chạy lại.
-
-**Lỗi "Unknown model: opencode-go/..." sau khi chọn model mới** → cache
-catalog gateway chưa refresh:
-`openclaw models list --refresh --provider <prefix>`.
+> 📁 **Toàn bộ danh mục lỗi + cách xử lý đã chuyển sang [TROUBLESHOOTING.md](TROUBLESHOOTING.md)** —
+> gồm: gateway kẹt "Starting...", lỗi preinstall/`--allow-scripts`, allowlist khoá model,
+> lỗi auth "Couldn't sign in", llama-server sai flag / sai PATH / trùng port,
+> và các lỗi hay gặp sau khi mở máy.
 
 **Xác nhận cấu hình cá nhân:** config nằm ở `~/.openclaw/openclaw.json`,
 workspace ở `~/.openclaw/workspace` — nên tự giữ riêng làm git repo private.
 
 ## 9. Dùng model local qua llama.cpp
+
+> 📌 **Cập nhật 28/10/2026 (versions):** llama.cpp hiện ở nhánh stable **v3** (repo
+> ggml-org/llama.cpp, xem https://github.com/ggml-org/llama.cpp/releases); các flag của `llama-server`
+> **đổi giữa các bản** — nếu sau khi upgrade server báo lỗi flag lạ (vd `--reasoning`, `--flash-attn`),
+> chạy `llama-server --help` đối chiếu rồi sửa `start-llama.sh` cho khớp. Về Ollama (nếu đi đường
+> Ollama thay vì llama.cpp thuần — xem [2-ollama-path.md](2-ollama-path.md)):
+> Ollama **không dùng llama.cpp thuần** — nó bundle bản llama.cpp đã patch + engine riêng (MLX trên
+> macOS); bản mới nhất 10/2026 là **v0.40.11 (24/10/2026, cập nhật llama.cpp)**, xem
+> https://ollama.com/blog và https://github.com/ollama/ollama/releases . Nghĩa là: flag/model behavior
+> giữa **Ollama** và **llama-server standalone** không giống nhau — đừng copy lệnh giữa 2 hệ.
 
 OpenClaw chơi được với llama.cpp qua plugin chính thức (chế độ "Existing
 llama-server" — OpenClaw chỉ kết nối, bạn tự quản server):
@@ -345,7 +332,7 @@ llama-server" — OpenClaw chỉ kết nối, bạn tự quản server):
 openclaw plugins install @openclaw/llama-cpp-provider
 ```
 
- Chuẩn bị server — nên đặt `--alias` để model ref ổn định qua các lần restart:
+Chuẩn bị server — nên đặt `--alias` để model ref ổn định qua các lần restart:
 
 ```bash
 llama-server --model /path/to/model.gguf --alias qwen3.5:9b \
@@ -380,7 +367,7 @@ Sửa `~/.openclaw/openclaw.json` thêm:
 > plugin không cho phép (allowed: api-key/aws-sdk/oauth/token), config sẽ
 > invalid và gateway không boot được (dashboard trắng, "Couldn't connect").
 
-Then activate:
+Kích hoạt:
 
 ```bash
 openclaw models list --refresh --provider llama-cpp   # discover từ /models + /props
@@ -425,34 +412,11 @@ Xong 3 bước là chat hoạt động.
 
 ### Lỗi hay gặp sau khi mở máy
 
-**`command not found: openclaw`** trong terminal mới → Node mặc định của nvm
-vẫn là 22, trong khi openclaw cài trên Node 26:
-
-```bash
-nvm alias default 26    # chạy 1 lần duy nhất
-```
-
-**"No API key found for provider llama-cpp" khi chat** → cần credential
-placeholder (llama.cpp không check key nhưng OpenClaw vẫn đòi): thêm
-`"env": { "vars": { "LLAMA_SERVER_API_KEY": "llama-local" } }` vào
-`~/.openclaw/openclaw.json` + `openclaw gateway restart`. Đích thân lỗi này
-đã gặp ngày 2026-10-23 — fix trong 1 phút.
-
-**Dashboard trắng + "Couldn't connect to OpenClaw" sau khi sửa config** →
-config invalid làm gateway không boot. Xem lỗi thật:
-`openclaw config validate`. CNTT hay gặp: `auth: "none"` trái schema
-plugin llama-cpp. Rollback nhanh: `cp ~/.openclaw/openclaw.json.bak
-~/.openclaw/openclaw.json && openclaw gateway restart`.
-
-**Chat báo lỗi nhắc "Couldn't sign in / model failed" sau khi reboot** → 90%
-là llama-server chưa chạy (gateway tự sống nhưng model local thì không).
-Fix: chạy lại `start-llama.sh` ở trên rồi thử chat lại.
-
-**Dashboard trắng / không kết nối được** → gateway chưa kịp nạp (30s đầu sau
-login). Chờ ít giây rồi refresh; nếu vẫn lỗi: `openclaw gateway restart`.
-
-Muốn llama-server tự khởi động luôn như gateway: tạo LaunchAgent riêng
-(`llctl` của llama.cpp hoặc run script này qua launchd) — hỏi mình khi cần.
+> 📁 Danh mục lỗi + fix chi tiết: [TROUBLESHOOTING.md](TROUBLESHOOTING.md) (mục 4).
+> Tóm tắt: `command not found: openclaw` → `nvm alias default 26`;
+> "No API key for provider llama-cpp" → thêm `LLAMA_SERVER_API_KEY` vào config;
+> dashboard trắng sau khi sửa config → `openclaw config validate` + rollback;
+> chat lỗi sau reboot → 90% là llama-server chưa chạy, chạy lại `start-llama.sh`.
 
 ## 11. Tham khảo
 
@@ -460,3 +424,5 @@ Muốn llama-server tự khởi động luôn như gateway: tạo LaunchAgent ri
 - Docs / Channels / Skills / Plugins: https://openclaw.ai/docs
 - macOS app README (dev + signing): https://github.com/openclaw/openclaw/blob/main/apps/macos/README.md
 - Discord cộng đồng: xem link trên trang chủ
+- **llama.cpp:** https://github.com/ggml-org/llama.cpp/releases · nhánh stable v3
+- **Ollama releases:** https://github.com/ollama/ollama/releases · bản mới nhất: **v0.40.11** (24/10/2026) · tin tức: https://ollama.com/blog
