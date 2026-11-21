@@ -34,30 +34,27 @@
 | npm | 12+ hoặc 11.16+ (để dùng `--allow-scripts`) |
 | Hệ điều hành | macOS 15+, Apple Silicon hoặc Intel |
 
+> **Cách đọc bảng này:** mỗi dòng là một thành phần bắt buộc phải có trước khi cài — kiểm tra đủ cả 3 dòng rồi hẵng sang bước sau.
+
 ⚠️ Node 22 **không đủ** — cài đặt sẽ báo lỗi ngay ở bước preinstall.
+
+> **Tóm gọn 1 câu:** Cần Node 26 (hoặc 24.22.1+), npm 11.16+/12+ và macOS 15+ — thiếu Node 26 là cài không được.
 
 ## 2. Cài Node 26 bằng nvm
 
-Máy dùng nvm, mặc định đang là Node 22 nên phải nâng lên:
+Mục này nâng Node lên bản 26 bằng nvm — công cụ cho phép máy cài nhiều phiên bản Node và đổi qua lại như đổi kênh TV.
 
-```bash
-source ~/.nvm/nvm.sh
-nvm install 26          # tải bản v26 mới nhất (lúc cài: v26.12.1)
-nvm use 26              # dùng cho phiên làm việc hiện tại
-nvm alias default 26    # đưa Node 26 lên mặc định (nên làm, vì OpenClaw cần Node 26)
-```
+> 📄 **Code ví dụ:** [`examples/01-2-cai-node-26-bang-nvm.sh`](examples/01-2-cai-node-26-bang-nvm.sh)
 
 Kiểm tra:
 
-```bash
-node --version   # phải là v26.x
-```
+> 📄 **Code ví dụ:** [`examples/02-2-cai-node-26-bang-nvm.sh`](examples/02-2-cai-node-26-bang-nvm.sh)
+
+> **Tóm gọn 1 câu:** Chạy script cài Node 26 qua nvm rồi chạy script kiểm tra — ra đúng số phiên bản là xong.
 
 ## 3. Cài OpenClaw bằng npm
 
-```bash
-npm install -g openclaw@latest --allow-scripts=@google/genai,esbuild,koffi,openclaw,protobufjs
-```
+> 📄 **Code ví dụ:** [`examples/03-3-cai-openclaw-bang-npm.sh`](examples/03-3-cai-openclaw-bang-npm.sh)
 
 Giải thích:
 - npm 11.16+ / 12 mặc định **chặn install scripts**. Nếu bỏ `--allow-scripts`, các package
@@ -65,24 +62,23 @@ Giải thích:
   → phải cài lại có cờ này.
 - Cài xong kiểm tra:
 
-```bash
-openclaw --version
-# OpenClaw 2026.10.7 (fe06181)
-```
+> 📄 **Code ví dụ:** [`examples/04-3-cai-openclaw-bang-npm.sh`](examples/04-3-cai-openclaw-bang-npm.sh)
+
+> **Tóm gọn 1 câu:** Cài bằng npm kèm cờ `--allow-scripts` (bắt buộc, để plugins/native bindings build đúng), xong chạy script kiểm tra xác nhận.
 
 ## 4. Onboarding lần đầu
 
-Chạy trong terminal riêng (wizard tương tác, cần nhập lựa chọn + xác thực qua trình duyệt):
+Mục này là lần "lạc kính" đầu tiên: chạy wizard để cấu hình model, kênh chat và workspace. Làm một lần là các lần sau tự chạy.
 
-```bash
-openclaw onboard --install-daemon
-```
+> 📄 **Code ví dụ:** [`examples/05-4-onboarding-lan-au.sh`](examples/05-4-onboarding-lan-au.sh)
 
-Wizard sẽ:
+Wizard (trình hướng dẫn dạng hỏi—đáp) sẽ:
 1. Cài **daemon Gateway** vào launchd (chạy nền, tự bật cùng máy)
 2. Hỏi chọn model (Claude / Codex / local...) và đăng nhập API key
 3. Tạo workspace tại `~/.openclaw/workspace`
 4. Cho phép kết nối kênh chat (Discord, Telegram, WhatsApp, Zalo...)
+
+> **Tóm gọn 1 câu:** Onboarding là wizard 4 bước: cài gateway chạy nền, chọn model, tạo workspace, nối kênh chat — làm đúng một lần.
 
 ## 5. Lệnh CLI hữu ích
 
@@ -90,149 +86,59 @@ Wizard sẽ:
 
 ### 5.1. Dùng hằng ngày
 
-```bash
-openclaw status            # tổng quan: channels, sessions; thêm --usage để xem quota, --deep để quét sâu
-openclaw gateway status    # Gateway có đang chạy không
-openclaw dashboard         # mở dashboard điều khiển trên trình duyệt
-openclaw health            # kiểm tra sức khỏe tổng thể
-openclaw chat              # chat với assistant ngay trong terminal (alias của `tui --local`)
-openclaw logs              # xem log gần đây nhất
-```
+> 📄 **Code ví dụ:** [`examples/06-5-1-dung-hang-ngay.sh`](examples/06-5-1-dung-hang-ngay.sh)
 
 ### 5.2. Cấu hình
 
-```bash
-openclaw configure                          # wizard tương tác: model, channels, gateway, plugins, skills...
-openclaw configure --section model          # chỉ chỉnh một mục (model | channels | gateway | daemon |
-                                            #   memory | web | workspace | plugins | skills | health)
-openclaw config get gateway.port            # đọc giá trị config (không tương tác)
-openclaw config set gateway.port 18789      # gán giá trị
-openclaw config file                        # in đường dẫn file config
-openclaw config validate                    # kiểm tra file config hợp lệ
-openclaw completion                         # cài autocomplete cho shell
-```
+> 📄 **Code ví dụ:** [`examples/07-5-2-cau-hinh.sh`](examples/07-5-2-cau-hinh.sh)
 
-Lưu ý: `configure` cần terminal tương tác (TTY); chạy trong script sẽ được in ra
+Lưu ý: `configure` cần terminal tương tác (TTY) — tức là cửa sổ gõ lệnh bình thường, không phải chạy trong script tự động; chạy trong script sẽ được in ra
 lệnh `config get|set` tương đương để dùng thay thế.
+
+> **Tóm gọn 1 câu:** Nhóm lệnh cấu hình cần terminal tương tác; nếu chạy script mà muốn xem config thì dùng cặp `config get|set`.
 
 ### 5.3. Gateway & daemon
 
-```bash
-openclaw gateway start | stop | restart    # điều khiển gateway thủ công
-openclaw gateway install | uninstall       # quản lý service chạy nền (launchd/systemd)
-openclaw gateway probe                     # kiểm tra gateway còn phản hồi
-openclaw gateway run --port 18789 --verbose  # chạy foreground để debug
-openclaw daemon status                     # alias của gateway service
-```
+> 📄 **Code ví dụ:** [`examples/08-5-3-gateway-daemon.sh`](examples/08-5-3-gateway-daemon.sh)
 
 ### 5.4. Chẩn đoán sự cố
 
-```bash
-openclaw doctor                # chẩn đoán: config, gateway, plugins, model routing...
-openclaw doctor --fix          # tự sửa các lỗi phát hiện được
-openclaw doctor --deep         # quét cả system service cài thừa
-openclaw triage                # chuyên gia đọc log chỉ ra vấn đề
-openclaw channels status --probe   # probe từng kênh đang cấu hình
-openclaw channels logs         # log gần đây của các kênh
-openclaw audit                 # rà soát session/alarm
-```
+> 📄 **Code ví dụ:** [`examples/09-5-4-chan-oan-su-co.sh`](examples/09-5-4-chan-oan-su-co.sh)
 
 ### 5.5. Models & auth
 
-```bash
-openclaw models list           # các model khả dụng
-openclaw models set            # đặt model mặc định
-openclaw models status         # model đang dùng + trạng thái auth
-openclaw models auth list      # profiles xác thực với từng provider
-openclaw models auth login     # thêm xác thực provider
-openclaw models auth paste-api-key --provider <p> --profile-id <p>:default
-                               # lưu API key non-interactive (nhắc paste key)
-openclaw status --usage        # quota/tỷ lệ dùng của Anthropic, OpenAI, z.ai...
-```
+> 📄 **Code ví dụ:** [`examples/10-5-5-models-auth.sh`](examples/10-5-5-models-auth.sh)
 
 ### 5.6. Kênh chat (WhatsApp, Telegram, Discord...)
 
-```bash
-openclaw channels list --all   # kênh đã cấu hình + các kênh cài được
-openclaw channels add          # wizard thêm kênh
-openclaw channels add --channel telegram --account alerts --token $TELEGRAM_BOT_TOKEN
-openclaw channels remove --channel discord --account work --delete
-openclaw channels login        # đăng nhập kênh (VD: quét QR WhatsApp)
-openclaw channels logout
-openclaw pairing list          # xem ai đang xin ghép đôi vào kênh
-openclaw pairing approve <channel> <code>   # duyệt ghép đôi
-```
+> 📄 **Code ví dụ:** [`examples/11-5-6-kenh-chat-whatsapp-telegram-discord.sh`](examples/11-5-6-kenh-chat-whatsapp-telegram-discord.sh)
 
 ### 5.7. Skills & plugins
 
-```bash
-openclaw skills search "calendar"    # tìm skill trên ClawHub
-openclaw skills install <name>       # cài skill
-openclaw skills list                 # skills đã có trong workspace
-openclaw plugins list                # plugin đang tải
-openclaw plugins install <name>      # cài plugin
-openclaw plugins enable|disable <name>
-openclaw plugins doctor              # báo lỗi load plugin
-openclaw mcp list                    # các MCP server đã cấu hình
-```
+> 📄 **Code ví dụ:** [`examples/12-5-7-skills-plugins.sh`](examples/12-5-7-skills-plugins.sh)
 
 ### 5.8. Gửi tin nhắn & agents
 
-```bash
-openclaw message send --channel telegram --chat <id> "Chào"
-openclaw message broadcast "Hello everyone"    # gửi tới mọi kênh đã cấu hình
-openclaw agents list          # các agent trong bộ
-openclaw agents add           # thêm agent riêng biệt
-```
+> 📄 **Code ví dụ:** [`examples/13-5-8-gui-tin-nhan-agents.sh`](examples/13-5-8-gui-tin-nhan-agents.sh)
 
 ### 5.9. Cập nhật, backup, reset
 
-```bash
-openclaw update               # cập nhật bản mới (--update là shorthand)
-openclaw update wizard        # cập nhật kèm wizard hướng dẫn
-openclaw update repair        # sửa cài đặt bị hỏng
-openclaw backup create        # backup state/config
-openclaw backup verify        # kiểm tra backup còn dùng được
-openclaw backup restore <backup>   # phục hồi
-openclaw migrate plan|apply <provider>   # chuyển nhà database (sqlite ↔ postgres)
-openclaw reset                # reset toàn bộ setup (cẩn trọng!)
-openclaw uninstall            # gỡ sạch
-```
+> 📄 **Code ví dụ:** [`examples/14-5-9-cap-nhat-backup-reset.sh`](examples/14-5-9-cap-nhat-backup-reset.sh)
 
 ### 5.10. Tự động hoá (cron)
 
-```bash
-openclaw cron add             # thêm job chạy định kỳ cho agent
-openclaw cron list            # danh sách automation
-openclaw cron run <id>        # chạy ngay một job
-openclaw cron enable|disable <id>
-openclaw hooks list           # hooks (tác động theo sự kiện)
-openclaw webhooks gmail setup # nhận thư Gmail trigger agent
-```
+> 📄 **Code ví dụ:** [`examples/15-5-10-tu-ong-hoa-cron.sh`](examples/15-5-10-tu-ong-hoa-cron.sh)
 
 ### 5.11a. Profile chrome (khuyến nghị)
 
 **Nodes & browser** (điều khiển máy khác/thiết bị):
 
-```bash
-openclaw nodes list           # các node (điện thoại, máy khác) đã ghép đôi
-openclaw nodes approve        # duyệt node mới xin kết nối
-openclaw node install         # biến máy này thành node điều khiển từ xa
-openclaw browser start        # bật trình duyệt tự động (nếu status vẫn running:false)
-openclaw browser open https://example.com   # cho agent điều khiển trình duyệt
-openclaw browser screenshot   # chụp ảnh trang đang mở
-```
+> 📄 **Code ví dụ:** [`examples/16-5-11a-profile-chrome-khuyen-nghi.sh`](examples/16-5-11a-profile-chrome-khuyen-nghi.sh)
 
 **Browser profiles** — trạng thái đã cấu hình xong ngày 2026-10-23/24:
 mặc định là profile **`chrome`** (extension) để điều khiển browser thật của bạn:
 
-```bash
-openclaw config set browser.defaultProfile "chrome"
-openclaw config set browser.profiles.chrome '{"driver": "extension"}' --strict-json --merge
-openclaw browser extension install          # mở Chrome Web Store → Add "OpenClaw"
-openclaw browser extension status           # Extension + native host phải "owned"
-openclaw browser --browser-profile chrome tabs   # thấy tab thật = OK
-```
+> 📄 **Code ví dụ:** [`examples/17-5-11a-profile-chrome-khuyen-nghi.sh`](examples/17-5-11a-profile-chrome-khuyen-nghi.sh)
 
 Lưu ý sống còn (đã đắt giá học):
 - Extension đi qua `chrome.debugger` — không cần debugging port, không bị
@@ -243,6 +149,8 @@ Lưu ý sống còn (đã đắt giá học):
   enumerate tabs, đóng các tab đặc biệt đó.
 - Access mode trong popup để "All tabs" cho agent thấy mọi tab.
 
+> **Tóm gọn 1 câu:** Profile chrome qua extension là đường chính thức: bền, không bị macOS chặn, chỉ nhớ nề nếp "restart gateway là phải bấm reconnect".
+
 ---
 
 ### 5.11b. Profile user (⚠️ ABANDONED — chỉ để tham khảo)
@@ -251,18 +159,16 @@ Lưu ý sống còn (đã đắt giá học):
 > chặn đọc file ở mọi process** (kể cả Terminal) → đã bỏ, dùng extension ở
 > 5.11a thay. Nội dung dưới đây chỉ giữ lại để tham khảo.
 
-```bash
-# 1. Chrome đang dùng → chrome://inspect/#remote-debugging → bật debugging
-# 2. Kết nối vào session thật:
-openclaw browser --browser-profile user start       # Chrome sẽ prompt "Allow" → bấm Allow
-openclaw browser --browser-profile user tabs        # xác nhận thấy tab thật
-openclaw config set browser.defaultProfile "user"   # làm mặc định (tuỳ chọn)
-```
+> 📄 **Code ví dụ:** [`examples/18-5-11b-profile-user-abandoned-chi-e-tham.sh`](examples/18-5-11b-profile-user-abandoned-chi-e-tham.sh)
 
 Cảnh báo: profile user cho agent quyền truy cập session đã đăng nhập —
 dùng có chủ đích, đừng để làm default khi model còn nhỏ/đang thử nghiệm.
 
+> **Tóm gọn 1 câu:** Profile user đã bị bỏ vì macOS chặn CDP — chỉ đọc để tham khảo, thực tế dùng profile chrome ở 5.11a.
+
 ### 5.12. Flags toàn cục
+
+Mục này liệt kê các cờ (flag) dùng chung cho mọi lệnh `openclaw` — gõ thêm đằng sau là có hiệu lực ngay.
 
 | Flag | Chức năng |
 |---|---|
@@ -273,35 +179,39 @@ dùng có chủ đích, đừng để làm default khi model còn nhỏ/đang th
 | `--no-color` | tắt màu ANSI |
 | `-V`, `--version` | in phiên bản |
 
+> **Cách đọc bảng này:** mỗi dòng là một cờ thêm vào cuối lệnh `openclaw`; hay dùng nhất là `--profile` để tách dữ liệu riêng tư và công việc.
+
+> **Tóm gọn 1 câu:** Flags toàn cục là "công tắc" đằng sau lệnh: `--dev` cho môi trường thử, `--profile` tách vùng dữ liệu, `--no-color` tắt màu.
+
 ### 5.13. Lệnh slash trong chat
 
-Trong khung chat (dashboard hoặc TUI) có thể dùng:
+Mục này là bộ lệnh gõ ngay trong khung chat, không cần ra terminal.
 
 - `/status` — chẩn doán nhanh phiên đang chat
 - `/config` — thay đổi config persist
 - `/debug` — override config tạm thời (cần `commands.debug: true`)
 - `/trace` — bật trace/debug của plugin trong phiên
 
+> **Tóm gọn 1 câu:** Trong khung chat có 4 lệnh slash: `/status` soi phiên, `/config` đổi config, `/debug` ghi đè tạm, `/trace` bật debug plugin.
+
 ## 6. Cách khác: app macOS native
+
+Mục này dành cho người ngán terminal: cài app macOS và thao tác bằng giao diện.
 
 Tải từ https://openclaw.ai (macOS 15+, bản Universal) — app chạy ở menu bar,
 tự quản gateway, chat, node, đỡ phải thao tác terminal.
 Bên trong app: **General → Install CLI** để cài CLI tương ứng.
 
+> **Tóm gọn 1 câu:** Không thích terminal thì cài app native từ openclaw.ai — app tự lo gateway và chat, trong app có nút Install CLI.
+
 ## 7. Chạy từ source (cho dev)
 
-```bash
-git clone https://github.com/openclaw/openclaw.git
-cd openclaw
-pnpm install        # ⚠️ phải dùng pnpm — npm install không được hỗ trợ
-pnpm build
-pnpm ui:build
-pnpm openclaw setup  # lần đầu config workspace
-pnpm gateway:watch   # gateway chế độ dev, tự reload khi sửa TypeScript
-```
+> 📄 **Code ví dụ:** [`examples/19-7-chay-tu-source-cho-dev.sh`](examples/19-7-chay-tu-source-cho-dev.sh)
 
 Build app macOS từ source: `./scripts/package-mac-app.sh` (ra `dist/OpenClaw.app`,
 cần Xcode 26.2+ / Swift 6.2; không có cert Apple Developer thì tự ký ad-hoc).
+
+> **Tóm gọn 1 câu:** Dev muốn nghịch code gốc thì chạy từ source; build app bằng một script, thiếu chứng chỉ Apple thì tự ký ad-hoc.
 
 ## 8. Xử lý lỗi thường gặp
 
@@ -313,7 +223,11 @@ cần Xcode 26.2+ / Swift 6.2; không có cert Apple Developer thì tự ký ad-
 **Xác nhận cấu hình cá nhân:** config nằm ở `~/.openclaw/openclaw.json`,
 workspace ở `~/.openclaw/workspace` — nên tự giữ riêng làm git repo private.
 
+> **Tóm gọn 1 câu:** Lỗi đã dồn hết vào TROUBLESHOOTING.md; nhớ luôn vị trí hai file quan trọng: config và workspace trong `~/.openclaw/`.
+
 ## 9. Dùng model local qua llama.cpp
+
+Mục này chỉ đường chạy model AI trên chính máy bạn (không tốn phí API, không gửi dữ liệu đi đâu) và nối OpenClaw vào server đó. "Model local" giống tự nấu ăn ở nhà thay vì đặt đồ ăn: chủ động hơn, nhưng tự lo bếp.
 
 > 📌 **Cập nhật 28/10/2026 (versions):** llama.cpp hiện ở nhánh stable **v3** (repo
 > ggml-org/llama.cpp, xem https://github.com/ggml-org/llama.cpp/releases); các flag của `llama-server`
@@ -328,37 +242,15 @@ workspace ở `~/.openclaw/workspace` — nên tự giữ riêng làm git repo p
 OpenClaw chơi được với llama.cpp qua plugin chính thức (chế độ "Existing
 llama-server" — OpenClaw chỉ kết nối, bạn tự quản server):
 
-```bash
-openclaw plugins install @openclaw/llama-cpp-provider
-```
+> 📄 **Code ví dụ:** [`examples/20-9-dung-model-local-qua-llama-cpp.sh`](examples/20-9-dung-model-local-qua-llama-cpp.sh)
 
 Chuẩn bị server — nên đặt `--alias` để model ref ổn định qua các lần restart:
 
-```bash
-llama-server --model /path/to/model.gguf --alias qwen3.5:9b \
-  --host 127.0.0.1 --port 8080
-```
+> 📄 **Code ví dụ:** [`examples/21-9-dung-model-local-qua-llama-cpp.sh`](examples/21-9-dung-model-local-qua-llama-cpp.sh)
 
 Sửa `~/.openclaw/openclaw.json` thêm:
 
-```json
-"env": {
-  "vars": {
-    "LLAMA_SERVER_API_KEY": "llama-local"
-  }
-},
-"models": {
-  "mode": "merge",
-  "providers": {
-    "llama-cpp": {
-      "baseUrl": "http://127.0.0.1:8080/v1",
-      "api": "openai-completions",
-      "request": { "allowPrivateNetwork": true },
-      "models": []
-    }
-  }
-}
-```
+> 📄 **Code ví dụ:** [`examples/22-9-dung-model-local-qua-llama-cpp.json`](examples/22-9-dung-model-local-qua-llama-cpp.json)
 
 > ⚠️ BẮT BUỘC có `env.vars.LLAMA_SERVER_API_KEY` (giá trị gì cũng được)
 > — agent runtime đòi 1 credential cho provider llama-cpp dù server local
@@ -369,11 +261,7 @@ Sửa `~/.openclaw/openclaw.json` thêm:
 
 Kích hoạt:
 
-```bash
-openclaw models list --refresh --provider llama-cpp   # discover từ /models + /props
-openclaw config set agents.defaults.model.primary "llama-cpp/<model-id>"
-openclaw gateway restart
-```
+> 📄 **Code ví dụ:** [`examples/23-9-dung-model-local-qua-llama-cpp.sh`](examples/23-9-dung-model-local-qua-llama-cpp.sh)
 
 Đã cài xong ngày 2026-10-23, hiện tại: server **`qwen3.5:9b`
 (Qwen3.5-9B Q4_K_M, ~6.4GB RAM)** @ 127.0.0.1:8080, context 33k, default =
@@ -387,7 +275,11 @@ lệnh server này (script có check "đang chạy rồi thì thôi").
   llama-server" (có verify tự động) hoặc "Managed local server"
   (OpenClaw tự cài llama-server + tải GGUF, có đưa model recommend theo RAM).
 
+> **Tóm gọn 1 câu:** Chạy model local qua llama.cpp: cắm API key giả vào config (bắt buộc), đừng đặt `auth: none`, và nhớ tự khởi động server mỗi lần mở máy.
+
 ## 10. Sau khi tắt máy — mở lại hằng ngày
+
+Mục này trả lời câu hỏi "sáng ra mở máy xong phải làm gì": cái nào tự dậy, cái nào phải bạn gọi. Đọc bảng là biết ngay.
 
 | Thứ | Có cần làm gì không? | Lệnh |
 |---|---|---|
@@ -395,20 +287,15 @@ lệnh server này (script có check "đang chạy rồi thì thôi").
 | **llama-server** | ✅ CÓ — bạn tự quản server, reboot là tắt | `bash ~/Github/open-claw/start-llama.sh` |
 | **Dashboard web** | Là tab trình duyệt thôi | `http://127.0.0.1:18789/` hoặc `openclaw dashboard` |
 
+> **Cách đọc bảng này:** mỗi dòng là một thành phần cần "bật" sau khi mở máy; cột giữa nói có phải làm gì không, cột phải là lệnh kiểm tra/chạy tương ứng.
+
 Quy trình ngày mới (30 giây):
 
-```bash
-# 1. Mở máy — gateway tự chạy, xác nhận lại nếu muốn:
-openclaw gateway status
-
-# 2. Bật llama-server (script có check "đang chạy rồi thì thôi"):
-bash ~/Github/open-claw/start-llama.sh
-
-# 3. Mở dashboard:
-openclaw dashboard
-```
+> 📄 **Code ví dụ:** [`examples/24-10-sau-khi-tat-may-mo-lai-hang.sh`](examples/24-10-sau-khi-tat-may-mo-lai-hang.sh)
 
 Xong 3 bước là chat hoạt động.
+
+> **Tóm gọn 1 câu:** Gateway tự dậy nhờ LaunchAgent; chỉ có llama-server là phải bạn bật tay mỗi sáng — chạy `start-llama.sh` là xong.
 
 ### Lỗi hay gặp sau khi mở máy
 
@@ -417,6 +304,8 @@ Xong 3 bước là chat hoạt động.
 > "No API key for provider llama-cpp" → thêm `LLAMA_SERVER_API_KEY` vào config;
 > dashboard trắng sau khi sửa config → `openclaw config validate` + rollback;
 > chat lỗi sau reboot → 90% là llama-server chưa chạy, chạy lại `start-llama.sh`.
+
+> **Tóm gọn 1 câu:** Sau reboot, 90% chuyện chat lỗi là do llama-server chưa chạy — còn lại tra TROUBLESHOOTING.md.
 
 ## 11. Tham khảo
 
